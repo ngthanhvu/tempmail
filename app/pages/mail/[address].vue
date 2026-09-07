@@ -28,7 +28,7 @@ useHead({
       <div class="flex-1 flex flex-col md:flex-row min-h-0 overflow-hidden">
         <!-- Left sidebar -->
         <aside
-          class="w-full md:w-80 md:fixed md:left-0 md:top-0 md:h-screen md:z-10 shrink-0 border-b md:border-b-0 md:border-r border-border bg-card overflow-hidden flex flex-col">
+          class="w-full md:w-80 shrink-0 border-b md:border-b-0 md:border-r border-border bg-card overflow-hidden flex flex-col">
           <MailAddressInboxList
             :emails="mail.emails"
             :selected="mail.selected"
@@ -38,12 +38,12 @@ useHead({
         </aside>
 
         <!-- Main content -->
-        <main class="flex-1 flex flex-col min-h-0 overflow-hidden p-3 md:p-4 bg-background md:pl-80">
+        <main class="flex-1 flex flex-col min-h-0 overflow-hidden p-3 md:p-4 bg-background">
           <MailAddressEmailDetail :email="mail.selectedEmail" :address="address" />
         </main>
       </div>
     </div>
 
-    <MailPageFooter class="md:pl-80" />
+    <MailPageFooter />
   </MailShell>
 </template>
