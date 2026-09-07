@@ -42,12 +42,8 @@ defineEmits<{
           <code
             class="font-mono text-foreground text-sm md:text-lg font-bold break-all w-full sm:w-auto">{{ emailAddress }}</code>
           <div class="flex items-center gap-2 w-full sm:w-auto">
-            <NuxtLink :to="`/mail/${encodeURIComponent(emailAddress)}`"
-              class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-8 px-3 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground flex-1 sm:flex-initial text-center">
-              MỞ RIÊNG
-            </NuxtLink>
             <button
-              class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-8 px-3 bg-primary text-primary-foreground shadow hover:bg-primary/90 flex-1 sm:flex-initial"
+              class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-8 px-3 bg-primary text-primary-foreground shadow hover:bg-primary/90 w-full sm:w-auto"
               @click="$emit('copy')">
               {{ copied ? '✓ COPIED' : 'COPY' }}
             </button>
