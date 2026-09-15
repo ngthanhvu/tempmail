@@ -7,23 +7,23 @@ services:
       dockerfile: Dockerfile.prod
     container_name: tempmail-app
     ports:
-      - "3001:3001"
+      - "127.0.0.1:3001:3001"
     env_file:
       - .env
     environment:
-      - NUXT_HOST=0.0.0.0
-      - NUXT_PORT=3001
-      - NODE_OPTIONS=--max-old-space-size=768
+      NUXT_HOST: 0.0.0.0
+      NUXT_PORT: 3001
+      NODE_OPTIONS: --max-old-space-size=768
     volumes:
       - tempmail_data:/app/data
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '1.0'
+          cpus: "1.0"
           memory: 1G
         reservations:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 256M
 
 volumes:
