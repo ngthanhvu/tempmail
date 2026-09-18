@@ -86,6 +86,12 @@ export function setEmails(newEmails: Email[]): void {
   saveEmails(newEmails)
 }
 
+export function deleteEmailByUid(uid: number): boolean {
+  const db = getDb()
+  const result = db.prepare('DELETE FROM emails WHERE uid = ?').run(uid)
+  return result.changes > 0
+}
+
 export function deleteOldEmails(hours: number): number {
   const db = getDb()
   const result = db.prepare(

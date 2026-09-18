@@ -1,8 +1,8 @@
 <template>
-  <div class="shrink-0 bg-border" :class="orientation === 'horizontal' ? 'h-[1px] w-full' : 'h-full w-[1px]'">
+  <div class="shrink-0 bg-border" :class="orientation === 'horizontal' ? 'h-px w-full' : 'h-full w-px'">
   </div>
 </template>
-
+s
 <script setup lang="ts">
 interface Props {
   orientation?: 'horizontal' | 'vertical'

@@ -16,6 +16,7 @@ export const useMailStore = defineStore('mail', {
     generated: false,
     copied: false,
     searchAddress: '',
+    identities: [] as string[],
   }),
 
   getters: {
@@ -41,6 +42,7 @@ export const useMailStore = defineStore('mail', {
           if (!this.emailAddress) {
             await this.generateEmail()
           } else {
+            this.addIdentity(this.emailAddress)
             await this.fetchInbox()
           }
         }
@@ -65,6 +67,7 @@ export const useMailStore = defineStore('mail', {
         const domain = domainList[Math.floor(Math.random() * domainList.length)] || 'mail.thanhvu.net'
         this.selectedDomain = domain
         this.emailAddress = await api.generateEmail(domain)
+        this.addIdentity(this.emailAddress)
         this.generated = true
         this.selected = null
         this.copied = false
@@ -101,8 +104,95 @@ export const useMailStore = defineStore('mail', {
       }
     },
 
+    async deleteEmail(uid: number) {
+      const api = useMailApi()
+      this.loading = true
+      try {
+        await api.deleteEmail(uid)
+        this.emails = this.emails.filter((email) => email.uid !== uid)
+        if (this.selected === uid) {
+          this.selected = null
+        }
+      } catch (e) {
+        console.error(e)
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async generateCustomEmail(username: string, domain: string) {
+      const api = useMailApi()
+      this.loading = true
+      try {
+        this.emailAddress = await api.generateCustomEmail(username, domain)
+        this.addIdentity(this.emailAddress)
+        this.generated = true
+        this.selected = null
+        this.copied = false
+        await this.fetchInbox()
+      } catch (e) {
+        console.error(e)
+        throw e
+      } finally {
+        this.loading = false
+      }
+    },
+
     setEmailAddress(address: string) {
       this.emailAddress = address
+      this.addIdentity(address)
+    },
+
+    loadIdentities() {
+      if (typeof window === 'undefined') return
+      try {
+        const raw = localStorage.getItem('tempmail-identities')
+        if (raw) {
+          this.identities = JSON.parse(raw)
+        }
+      } catch (e) {
+        console.error(e)
+      }
+    },
+
+    saveIdentities() {
+      if (typeof window === 'undefined') return
+      try {
+        localStorage.setItem('tempmail-identities', JSON.stringify(this.identities))
+      } catch (e) {
+        console.error(e)
+      }
+    },
+
+    addIdentity(address: string) {
+      if (!address) return
+      if (!this.identities.includes(address)) {
+        this.identities.unshift(address)
+        this.saveIdentities()
+      }
+    },
+
+    async removeIdentity(address: string) {
+      this.identities = this.identities.filter((a) => a !== address)
+      this.saveIdentities()
+      if (this.emailAddress === address) {
+        this.emailAddress = this.identities[0] || ''
+        this.generated = !!this.emailAddress
+        this.selected = null
+        this.copied = false
+        this.emails = []
+        if (this.emailAddress) {
+          await this.fetchInbox()
+        }
+      }
+    },
+
+    async selectIdentity(address: string) {
+      this.emailAddress = address
+      this.generated = true
+      this.selected = null
+      this.copied = false
+      await this.fetchInbox()
     },
   },
 })

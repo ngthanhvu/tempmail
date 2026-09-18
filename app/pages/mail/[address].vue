@@ -22,28 +22,35 @@ useHead({
 
 <template>
   <MailShell>
-    <div class="flex-1 flex flex-col min-h-0 overflow-hidden">
+    <template #header>
       <MailAddressHeader :address="address" />
+    </template>
 
-      <div class="flex-1 flex flex-col md:flex-row min-h-0 overflow-hidden">
-        <!-- Left sidebar -->
-        <aside
-          class="w-full md:w-80 shrink-0 border-b md:border-b-0 md:border-r border-border bg-card overflow-hidden flex flex-col">
-          <MailAddressInboxList
-            :emails="mail.emails"
-            :selected="mail.selected"
-            :loading="mail.loading"
-            @select="mail.selectEmail"
-          />
-        </aside>
-
-        <!-- Main content -->
-        <main class="flex-1 flex flex-col min-h-0 overflow-hidden p-3 md:p-4 bg-background">
-          <MailAddressEmailDetail :email="mail.selectedEmail" :address="address" />
-        </main>
+    <template #left>
+      <div class="p-4 lg:p-5 space-y-4 overflow-y-auto">
+        <div class="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+          <span class="h-2 w-2 rounded-full bg-primary"></span>
+          Địa chỉ inbox
+        </div>
+        <MailGenerator :email-address="address" :copied="mail.copied" :loading="false" @copy="mail.copyEmail" />
       </div>
-    </div>
+    </template>
 
-    <MailPageFooter />
+    <template #middle>
+      <MailAddressInboxList
+        :emails="mail.emails"
+        :selected="mail.selected"
+        :loading="mail.loading"
+        @select="mail.selectEmail"
+      />
+    </template>
+
+    <template #right>
+      <MailAddressEmailDetail :email="mail.selectedEmail" :address="address" />
+    </template>
+
+    <template #footer>
+      <MailPageFooter />
+    </template>
   </MailShell>
 </template>

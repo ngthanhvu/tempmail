@@ -49,9 +49,31 @@ export function useMailApi() {
     return res.json()
   }
 
+  async function deleteEmail(uid: number): Promise<void> {
+    const res = await fetch(`/api/emails/${uid}`, { method: 'DELETE' })
+    if (!res.ok) {
+      throw new Error(`Failed to delete email: ${res.status}`)
+    }
+  }
+
+  async function generateCustomEmail(username: string, domain: string): Promise<string> {
+    const res = await fetch('/api/emails/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, domain }),
+    })
+    if (!res.ok) {
+      throw new Error(`Failed to generate custom email: ${res.status}`)
+    }
+    const data: GenerateEmailResponse = await res.json()
+    return data.address
+  }
+
   return {
     fetchDomains,
     generateEmail,
     fetchInbox,
+    deleteEmail,
+    generateCustomEmail,
   }
 }

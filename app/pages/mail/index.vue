@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const mail = useMailStore()
 const router = useRouter()
+const showCustomForm = ref(false)
 
 function goToInbox() {
   const address = mail.searchAddress.trim().toLowerCase()
@@ -8,7 +9,33 @@ function goToInbox() {
   router.push(`/mail/${encodeURIComponent(address)}`)
 }
 
+function deleteSelected() {
+  if (!mail.selected) return
+  if (!confirm('Xóa email đang chọn?')) return
+  mail.deleteEmail(mail.selected)
+}
+
+function removeIdentity() {
+  if (!mail.emailAddress) return
+  if (!confirm('Xóa địa chỉ email này khỏi danh sách?')) return
+  mail.removeIdentity(mail.emailAddress)
+}
+
+async function generateCustom({ username, domain }: { username: string; domain: string }) {
+  try {
+    await mail.generateCustomEmail(username, domain)
+    showCustomForm.value = false
+  } catch (e) {
+    alert('Không thể tạo email tuỳ chỉnh. Vui lòng thử lại.')
+  }
+}
+
+function selectIdentity(address: string) {
+  mail.selectIdentity(address)
+}
+
 onMounted(() => {
+  mail.loadIdentities()
   mail.fetchDomains()
   const interval = setInterval(() => mail.fetchInbox(undefined, true), 5000)
   onUnmounted(() => clearInterval(interval))
@@ -21,30 +48,53 @@ useHead({
 
 <template>
   <MailShell>
-    <MailPageHeader :show-actions="mail.generated" @refresh="mail.fetchInbox" @generate="mail.generateEmail" />
+    <template #header>
+      <MailPageHeader />
+    </template>
 
-    <div class="flex-1 flex flex-col md:flex-row min-h-0 overflow-hidden">
-      <!-- Left sidebar: inbox list -->
-      <aside
-        class="w-full md:w-80 shrink-0 border-b md:border-b-0 md:border-r border-border bg-card overflow-hidden flex flex-col">
-        <MailInboxList :emails="mail.emails" :selected="mail.selected" :address="mail.emailAddress"
-          :loading="mail.loading" @select="mail.selectEmail" />
-      </aside>
-
-      <!-- Main content -->
-      <main class="flex-1 flex flex-col min-h-0 overflow-y-auto p-3 md:p-4 gap-3 bg-background">
-        <MailGenerator :email-address="mail.emailAddress" :copied="mail.copied" :loading="!mail.generated"
-          @copy="mail.copyEmail" @generate="mail.generateEmail" />
-
-        <!-- <MailSearchInbox v-model:search-address="mail.searchAddress" @submit="goToInbox" /> -->
-
-        <div v-if="mail.generated" class="flex-1 min-h-0">
-          <MailEmailDetail :email="mail.selectedEmail" :address="mail.emailAddress" />
+    <template #left>
+      <div class="relative flex flex-col h-full p-4 lg:p-5 gap-4 overflow-y-auto">
+        <template v-if="!showCustomForm">
+          <MailIdentitySelector
+            :identities="mail.identities"
+            :model-value="mail.emailAddress"
+            @update:model-value="selectIdentity"
+            @copy="mail.copyEmail"
+          />
+          <MailActions
+            :loading="mail.loading"
+            :can-delete="!!mail.emailAddress"
+            @refresh="mail.fetchInbox"
+            @generate="mail.generateEmail"
+            @delete="removeIdentity"
+            @custom="showCustomForm = true"
+          />
+        </template>
+        <div v-else class="absolute inset-0 z-10 bg-card p-4 lg:p-5 overflow-y-auto">
+          <MailCustomGenerator
+            :domains="mail.domains"
+            :loading="mail.loading"
+            @generate="generateCustom"
+            @close="showCustomForm = false"
+          />
         </div>
-        <SkeletonEmailDetail v-else aria-busy="true" aria-label="Đang tải email" />
-      </main>
-    </div>
+      </div>
+    </template>
 
-    <MailPageFooter />
+    <template #middle>
+      <MailInboxList :emails="mail.emails" :selected="mail.selected" :address="mail.emailAddress"
+        :loading="mail.loading" @select="mail.selectEmail" />
+    </template>
+
+    <template #right>
+      <div v-if="mail.generated" class="h-full min-h-0">
+        <MailEmailDetail :email="mail.selectedEmail" :address="mail.emailAddress" />
+      </div>
+      <SkeletonEmailDetail v-else aria-busy="true" aria-label="Đang tải email" />
+    </template>
+
+    <template #footer>
+      <MailPageFooter />
+    </template>
   </MailShell>
 </template>
